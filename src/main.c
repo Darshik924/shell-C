@@ -3,7 +3,15 @@
 #include <string.h>
 #define MAX 1024
 
-int main(int argc, char *argv[]) {
+void flushCmds(char *cmd, int *x)
+{
+  while ((*x)-- > 0)
+    *cmd++ = '\0';
+  *x = 0;
+}
+
+int main(int argc, char *argv[]) 
+{
   setbuf(stdout, NULL);
   printf("$ ");
 
@@ -14,14 +22,21 @@ int main(int argc, char *argv[]) {
   while ((c = getchar()) != EOF && i < MAX - 2) {
     if (c == '\n') {
       commands[i] = '\0';
+
+      // Handling the exit commands
       if (strcmp(commands, exit) == 0) {
         break;
       }
 
+      // Handling the echo commands
+      if (strncmp(commands, "echo ", 5) == 0) {
+        printf("%s\n$ ", commands + 5); // skips the first 5 things and prints them
+        flushCmds(commands, &i);
+        continue;
+      }
+
       printf("%s: command not found\n$ ", commands);
-      while (i) 
-        commands[i--] = '\0';
-      commands[i] = '\0';
+      flushCmds(commands, &i);
       continue;
     }
     commands[i++] = c;
