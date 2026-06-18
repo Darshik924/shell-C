@@ -13,7 +13,7 @@ void cleanCmds(char *cmd, int *x)
 void triM(char *str)
 {
   if (str == NULL || *str == '\0') return;
-  
+
   while (*str != '\0')
     ++str;
   while (*--str == ' ') 
@@ -53,7 +53,7 @@ void handleType(char *cmd, char *argv[])
   }
 
   if (isBuiltin(target)) {
-    printf("%s is a builtin\n$ ", target);
+    printf("%s is a shell builtin\n$ ", target);
     return;
   }
 
