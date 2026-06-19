@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
       
       if (isEmpty(cmdque)) {
         printf("$ ");
-        cleanCmds(cmdque);
+        cleanCmds(cmdque, &i);
         continue;
       }
       // Our cmd at this point is not empty and trimmed down
