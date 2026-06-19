@@ -10,7 +10,7 @@ void cleanCmds(char *cmd, int *x)
 }
 
 // A function to remove specifically trailing spaces
-void triM(char *str)
+void trimDown(char *str)
 {
   if (str == NULL || *str == '\0') return;
 
@@ -30,75 +30,38 @@ bool isBuiltin(char *cmd)
   );
 }
 
-// type command Handler
-void handleType(char *cmd, char *argv[]) 
+// Function that returns a pointer to the first occurence of a character c and returns NULL otherwise
+char *strChr(char *name, int c) 
 {
-  if (cmd == NULL) {
-    printf("$ ");
-    return;
-  }
-  while (*cmd == ' ') 
-    ++cmd;
-  
-  // Extract the target first
-  char target[MAX];
-  size_t i = 0;
-  while (*cmd && *cmd != ' ' && i < MAX-1) 
-    target[i++] = *cmd++;
-  target[i] = '\0';
+  while (*name != c) {
+    ++name;
+    if (*name == c) 
+      return name;
 
-  if (i == 0) {
-    printf("$ ");
-    return;
-  }
+    if (*name == '\0') 
+      return NULL; 
+  } 
+  return NULL;
+} 
 
-  if (isBuiltin(target)) {
-    printf("%s is a shell builtin\n$ ", target);
-    return;
-  }
+void freeArgv(char **argv) 
+{
+  for (int i=0; argv[i]; ++i) 
+    free(argv[i]);
 
-  char *path = getenv("PATH");
-  if (path == NULL) {
-    printf("%s: not found\n$ ", target);
-    return;
-  }
+  free(argv);
+}
 
-  char *pathdup = strdup(path);
-  /* 
-    The strdup() function in C duplicates a given null-terminated string by dynamically allocating memory and copying the content, returning a pointer to the new string
-  */
+void trimUp(char *cmd)
+{ 
+  trimDown(cmd);
+  if (cmd == NULL || *cmd == '\0') return;
 
-  if (pathdup == NULL) {
-    printf("%s: not found\n$ ", target);
-    return;
-  }
+  while (*cmd == ' ')
+    *cmd++ = '\0';
+}
 
-  char *saveptr = NULL;
-  char *dir = strtok_r(pathdup, ":", &saveptr);
-  /*  
-    The strtok() function is that splits a string into smaller parts based on a set of delimiters.  
-    It works by scanning the input string, replacing each encountered delimiter with a null terminator (\0), and returning a pointer to the beginning of the extracted sequence 
-  */
-
-  while (dir != NULL) {
-    size_t need = strlen(dir) + 1 + strlen(target) + 1;
-
-    char *fpath = malloc(need);
-    if (fpath == NULL) break;
-
-    snprintf(fpath, need, "%s/%s", dir, target);
-
-    if (access(fpath, X_OK) == 0) {
-      printf("%s is %s\n$ ", target, fpath);
-      free(fpath);
-      free(pathdup);
-      return;
-    }
-
-    free(fpath);
-    dir = strtok_r(NULL, ":", &saveptr);
-  }
-
-  free(pathdup);
-  printf("%s: not found\n$ ", target);
+bool isEmpty(char *str)
+{
+  return (*str == '\0');    
 }

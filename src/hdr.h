@@ -21,6 +21,13 @@ extern char typeCmd[];
 
 void cleanCmds(char *, int *);
 void handleType(char *, char *[]);
-void triM(char *);
+void trimDown(char *);
+bool isBuiltin(char *);
+char *findExecutable(char *);
+char *strChr(char *, int);
+
+void freeArgv(char **);
+bool runExternal(char *);
+bool isEmpty(char *);
 
 #endif
