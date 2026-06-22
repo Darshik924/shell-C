@@ -53,6 +53,7 @@ void freeArgv(char **argv)
   free(argv);
 }
 
+// Function to return the length of the string 
 int strLen(char *str)
 {
   int i = 0;
@@ -63,6 +64,7 @@ int strLen(char *str)
   return i;
 }
 
+// A function that trims the starting whitespaces in place for the string
 void trimUp(char tmp[])
 { 
   char *cmd = tmp;
