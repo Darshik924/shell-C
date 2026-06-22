@@ -7,6 +7,9 @@ void handleType(char *cmd, char *argv[])
     printf("$ ");
     return;
   }
+
+  while (*cmd == ' ')
+    ++cmd;
   
   // Extract the target first
   char target[MAX];

@@ -29,6 +29,14 @@ int main(int argc, char *argv[])
         continue;
       }
 
+      // Handling the cd command 
+      if (strncmp(cmdque, cdCmd, 3) == 0) {
+        handleCd(cmdque + 3);
+        printf("$ ");
+        cleanCmds(cmdque, &i);
+        continue;
+      }
+
       // Handling the exit command 
       if (strcmp(cmdque, exitCmd) == 0) break;
 

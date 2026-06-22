@@ -83,14 +83,3 @@ bool isEmpty(char *str)
 {
   return (*str == '\0');    
 }
-
-
-void handlePwd()
-{
-  char cwd[MAX];
-  if (getcwd(cwd, sizeof(cwd)) != NULL) {
-    printf("%s\n", cwd);
-  } else {
-    printf("pwd: unable to print the working directory, returned to home\n$ ");
-  }
-}

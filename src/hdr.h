@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #define MAX 1024
 /*
@@ -19,6 +20,7 @@ extern char exitCmd[];
 extern char echoCmd[];
 extern char typeCmd[];
 extern char pwdCmd[];
+extern char cdCmd[];
 
 void cleanCmds(char *, int *);
 void handleType(char *, char *[]);
@@ -37,5 +39,6 @@ void trimUp(char []);
 int strLen(char *);
 
 void handlePwd();
+void handleCd(char *);
 
 #endif
