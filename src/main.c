@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
       }
 
       // Handling the cd command 
-      if (strncmp(cmdque, cdCmd, 3) == 0) {
-        handleCd(cmdque + 3);
+      if (strncmp(cmdque, cdCmd, 2) == 0) {
+        handleCd(cmdque + 2);
         printf("$ ");
         cleanCmds(cmdque, &i);
         continue;

@@ -27,7 +27,8 @@ bool isBuiltin(char *cmd)
     strncmp(cmd, echoCmd, 4) == 0 || 
     strncmp(cmd, typeCmd, 4) == 0 || 
     strncmp(cmd, exitCmd, 4) == 0 ||
-    strcmp(cmd, pwdCmd) == 0
+    strcmp(cmd, pwdCmd) == 0 ||
+    strcmp(cmd, cdCmd) == 0
   );
 }
 
