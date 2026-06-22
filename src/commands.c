@@ -3,5 +3,6 @@
 char exitCmd[] = "exit";
 char echoCmd[] = "echo ";
 char typeCmd[] = "type ";
+char pwdCmd[] = "pwd";
 
 char appName[] = "Shell";

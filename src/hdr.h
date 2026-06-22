@@ -18,16 +18,24 @@
 extern char exitCmd[];
 extern char echoCmd[];
 extern char typeCmd[];
+extern char pwdCmd[];
 
 void cleanCmds(char *, int *);
 void handleType(char *, char *[]);
 void trimDown(char *);
+
 bool isBuiltin(char *);
 char *findExecutable(char *);
 char *strChr(char *, int);
 
+char *getcwd(char *, size_t);
 void freeArgv(char **);
 bool runExternal(char *);
+
 bool isEmpty(char *);
+void trimUp(char []);
+int strLen(char *);
+
+void handlePwd();
 
 #endif

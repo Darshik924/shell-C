@@ -18,8 +18,16 @@ int main(int argc, char *argv[])
         continue;
       }
       // Our cmd at this point is not empty and trimmed down
-      // Next Implement trimUp but trim cmdque in place 
-      // May Implement using a index at point if != ' ' || != '\0' and then copy all their contents to the start, May also need to write a custom length function
+      trimUp(cmdque);
+      // Cmd que at this pt is trimmed totally Next look for the builtin commands
+
+      // Handling the pwd command
+      if (strcmp(cmdque, pwdCmd) == 0) {
+        handlePwd();
+        printf("$ ");
+        cleanCmds(cmdque, &i);
+        continue;
+      }
 
       // Handling the exit command 
       if (strcmp(cmdque, exitCmd) == 0) break;

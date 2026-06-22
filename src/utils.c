@@ -4,7 +4,7 @@
 // A function to flush our commands queue
 void cleanCmds(char *cmd, int *x)
 {
-  while ((*x)-- > 0)
+  while (*cmd != '\0')
     *cmd++ = '\0';
   *x = 0;
 }
@@ -52,16 +52,44 @@ void freeArgv(char **argv)
   free(argv);
 }
 
-void trimUp(char *cmd)
+int strLen(char *str)
+{
+  int i = 0;
+  if (str == NULL || *str == '\0') return 0;
+
+  while (*str++ != '\0')
+    ++i;
+  return i;
+}
+
+void trimUp(char tmp[])
 { 
+  char *cmd = tmp;
   trimDown(cmd);
   if (cmd == NULL || *cmd == '\0') return;
+  int len = strLen(tmp);
 
   while (*cmd == ' ')
-    *cmd++ = '\0';
+    ++cmd;
+  int i = 0;
+  while ((tmp[i++] = *cmd++) != '\0') 
+    ;
+  while (i <= len) 
+    tmp[i++] = '\0';
 }
 
 bool isEmpty(char *str)
 {
   return (*str == '\0');    
+}
+
+
+void handlePwd()
+{
+  char cwd[MAX];
+  if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    printf("%s\n", cwd);
+  } else {
+    printf("pwd: unable to print the working directory, returned to home\n$ ");
+  }
 }
