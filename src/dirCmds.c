@@ -25,16 +25,10 @@ void handleCd(char *path)
     printf("cd: expected an absolute or a relative path to start with '/' or '.'\n");
     return;
   }
-//   trimDown(path);
 
   if (chdir(path) == -1) {
     // Call chdir(): Pass the path string directly to chdir().
     // Handle Errors: If chdir() returns -1, the directory likely doesn't exist or you lack permissions. 
-    // printf("cd: %s: No such file or directory\n", path);
-
-    // fprintf(stderr, "cd: %s: ", path);
-
-    perror("cd failed"); 
-    // perror(""); 
+    printf("cd: %s: No such file or directory\n", path);
   }
 }
