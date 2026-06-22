@@ -7,13 +7,11 @@ void handleType(char *cmd, char *argv[])
     printf("$ ");
     return;
   }
-  while (*cmd == ' ') 
-    ++cmd;
   
   // Extract the target first
   char target[MAX];
   size_t i = 0;
-  while (*cmd && *cmd != ' ' && i < MAX-1) 
+  while (*cmd && *cmd != ' ' && *cmd != '\0' && i < MAX-1 ) 
     target[i++] = *cmd++;
   target[i] = '\0';
 

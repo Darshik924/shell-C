@@ -27,7 +27,7 @@ bool isBuiltin(char *cmd)
     strncmp(cmd, echoCmd, 4) == 0 || 
     strncmp(cmd, typeCmd, 4) == 0 || 
     strncmp(cmd, exitCmd, 4) == 0 ||
-    strncmp(cmd, pwdCmd, 3)
+    strcmp(cmd, pwdCmd) == 0
   );
 }
 
@@ -73,7 +73,7 @@ void trimUp(char tmp[])
   while (*cmd == ' ')
     ++cmd;
   int i = 0;
-  while ((tmp[i++] = *cmd++) != '\0') 
+  while ((tmp[i++] = *cmd++) != '\0' && i < MAX - 1) 
     ;
   while (i <= len) 
     tmp[i++] = '\0';
