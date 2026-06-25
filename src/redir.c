@@ -36,6 +36,7 @@ void handleEcho(char *cmd)
             while (*--scan == ' ')
                 ;
             *++scan = '\0';
+            printf("%s\n$ ", st);
             break;
         }
         scan++;
