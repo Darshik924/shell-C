@@ -19,7 +19,7 @@ void handleEcho(char *cmd)
     }
 
     if (!isDirected)
-        printf("%s\n", st);
+        printf("%s\n$ ", st);
     else
     {
         // 2. Parse the filename
@@ -51,7 +51,7 @@ void handleEcho(char *cmd)
 
         if (fd < 0)
         {
-            perror("Error opening file");
+            perror("Error opening file\n$ ");
             return;
         }
 
@@ -59,7 +59,7 @@ void handleEcho(char *cmd)
         // dup2(fd, 1) makes fd 1 point to the same file as fd
         if (dup2(fd, 1) < 0)
         {
-            perror("dup2 failed");
+            perror("dup2 failed\n$ ");
             close(fd);
             return;
         }
@@ -69,7 +69,7 @@ void handleEcho(char *cmd)
 
         // 5. Perform the output
         // Since we redirected fd 1, printf now writes to the file
-        printf("%s\n", st);
+        printf("%s\n$ ", st);
 
         // Optional: Restore stdout if you need to print more to terminal later
         // For a simple command execution, the process often exits or execs here.
