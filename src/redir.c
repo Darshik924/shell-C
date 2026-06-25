@@ -51,7 +51,7 @@ void handleEcho(char *cmd)
 
         if (fd < 0)
         {
-            perror("Error opening file\n$ ");
+            perror("Error opening file");
             return;
         }
 
@@ -59,7 +59,7 @@ void handleEcho(char *cmd)
         // dup2(fd, 1) makes fd 1 point to the same file as fd
         if (dup2(fd, 1) < 0)
         {
-            perror("dup2 failed\n$ ");
+            perror("dup2 failed");
             close(fd);
             return;
         }
