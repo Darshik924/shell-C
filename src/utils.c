@@ -95,6 +95,13 @@ void formatCmd(char *cmd)
   int len = strLen(cmd);
 
   while (*cmd != '\0') {
+
+    if (*cmd == '\\') {
+      *pt++ = *++cmd;
+      ++cmd;
+      continue;
+    }
+
     if (*cmd == '\"') {
       if (!isDquote) {
         isDquote = 1;
