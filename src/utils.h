@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
 
 #define MAX 1024
 /*
@@ -41,5 +43,8 @@ int strLen(char *);
 void handlePwd();
 void handleCd(char *);
 void formatCmd(char *);
+
+void handleEcho(char *);
+void strCOPY(char *, char *);
 
 #endif

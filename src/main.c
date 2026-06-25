@@ -1,4 +1,4 @@
-#include "hdr.h"
+#include "utils.h"
 
 int main(int argc, char *argv[]) 
 {
@@ -56,7 +56,8 @@ int main(int argc, char *argv[])
 
       // Handling the echo command 
       if (strncmp(cmdque, echoCmd, 5) == 0) {
-        printf("%s\n$ ", cmdque + 5);
+        // printf("%s\n$ ", cmdque + 5);
+        handleEcho(cmdque + 5);
         cleanCmds(cmdque, &i);
         continue;
       }

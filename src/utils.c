@@ -1,5 +1,4 @@
-#include "hdr.h"
-#include <limits.h>
+#include "utils.h"
 
 // A function to flush our commands queue
 void cleanCmds(char *cmd, int *x)
@@ -64,6 +63,13 @@ int strLen(char *str)
     ++i;
   return i;
 }
+
+// Function to totally copy the contents from string s to another string t
+void strCOPY(char *s, char *t) 
+{  
+  while ((*t++ = *s++) != '\0')
+    ;
+}   
 
 // A function that trims the starting whitespaces in place for the string
 void trimUp(char tmp[])
@@ -158,3 +164,5 @@ void formatCmd(char *cmd)
   while (l2++ < len) 
     *pt++ = '\0';
 }
+
+
