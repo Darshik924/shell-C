@@ -184,9 +184,10 @@ bool runExternal(char *cmdline)
     return true;
   }
 
-  // 1. Check for Redirection (support ">", "1>", ">file" and "1>file")
+  // 1. Check for Redirection (support ">", "1>", "2>", ">file", "1>file", and "2>file")
   char *outputFile = NULL;
   int redirectIndex = -1;
+  int redirectFd = 1;
 
   for (int i = 0; argv[i] != NULL; i++)
   {
@@ -196,6 +197,7 @@ bool runExternal(char *cmdline)
     {
       if (argv[i + 1] != NULL)
       {
+        redirectFd = 1;
         outputFile = argv[i + 1];
         redirectIndex = i;
         argv[i] = NULL;
@@ -209,9 +211,28 @@ bool runExternal(char *cmdline)
       }
     }
 
-    // Handle attached filename forms: ">file" or "1>file"
+    if (strcmp(a, "2>") == 0)
+    {
+      if (argv[i + 1] != NULL)
+      {
+        redirectFd = 2;
+        outputFile = argv[i + 1];
+        redirectIndex = i;
+        argv[i] = NULL;
+        break;
+      }
+      else
+      {
+        printf("Syntax error: missing filename after '%s'\n$ ", a);
+        freeArgv(argv);
+        return true;
+      }
+    }
+
+    // Handle attached filename forms: ">file", "1>file" or "2>file"
     if (a[0] == '>' && a[1] != '\0')
     {
+      redirectFd = 1;
       outputFile = a + 1;
       redirectIndex = i;
       argv[i] = NULL;
@@ -220,6 +241,16 @@ bool runExternal(char *cmdline)
 
     if (a[0] == '1' && a[1] == '>' && a[2] != '\0')
     {
+      redirectFd = 1;
+      outputFile = a + 2;
+      redirectIndex = i;
+      argv[i] = NULL;
+      break;
+    }
+
+    if (a[0] == '2' && a[1] == '>' && a[2] != '\0')
+    {
+      redirectFd = 2;
       outputFile = a + 2;
       redirectIndex = i;
       argv[i] = NULL;
@@ -252,13 +283,13 @@ bool runExternal(char *cmdline)
         _exit(1);
       }
 
-      // Redirect stdout to the file
-      if (dup2(fd, STDOUT_FILENO) < 0)
+      // Redirect the selected fd to the file
+      if (dup2(fd, redirectFd) < 0)
       {
         perror("dup2");
         _exit(1);
       }
-      close(fd); // fd is no longer needed, STDOUT_FILENO is now the file
+      close(fd); // fd is no longer needed, redirectFd now points to the file
     }
 
     execv(full, argv);
