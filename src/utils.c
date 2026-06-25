@@ -107,17 +107,22 @@ void formatCmd(char *cmd)
       continue;
     }
 
+    if (*cmd == '\"' && isquote) {
+      *pt++ = *cmd++;
+      continue;
+    }
+
+    if (*cmd == '\'' && isDquote){
+      *pt++ = *cmd++;
+      continue;
+    }
+
     if (*cmd == '\"') {
       if (!isDquote) {
         isDquote = 1;
         sp_found = 0;
       } else isDquote = 0;
       ++cmd;
-      continue;
-    }
-
-    if (*cmd == '\'' && isDquote){
-      *pt++ = *cmd++;
       continue;
     }
 
