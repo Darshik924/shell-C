@@ -19,6 +19,10 @@ int main(int argc, char *argv[])
       }
       // Our cmd at this point is not empty and trimmed down
       trimUp(cmdque);
+      // Save the original trimmed command for external execution so quoted arguments are preserved
+      char rawCmd[MAX];
+      strncpy(rawCmd, cmdque, MAX);
+      rawCmd[MAX - 1] = '\0';
       // Cmd que at this pt is trimmed totally Next look for the builtin commands
       formatCmd(cmdque);
       // formatCmd function will remove all the extra spaces except the quotes and with quotes it will give described behaviour to our string all editing the string in place
@@ -57,7 +61,7 @@ int main(int argc, char *argv[])
         continue;
       }
 
-      if (runExternal(cmdque)){
+      if (runExternal(rawCmd)){
         cleanCmds(cmdque, &i);
         continue;
       }
