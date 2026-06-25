@@ -20,6 +20,9 @@ int main(int argc, char *argv[])
       // Our cmd at this point is not empty and trimmed down
       trimUp(cmdque);
       // Cmd que at this pt is trimmed totally Next look for the builtin commands
+      formatCmd(cmdque);
+      // formatCmd function will remove all the extra spaces except the quotes and with quotes it will give described behaviour to our string all editing the string in place
+      /* Make a formatCmd function that formats our cmd with using single and double quotes at this point */
 
       // Handling the pwd command
       if (strcmp(cmdque, pwdCmd) == 0) {
@@ -49,7 +52,7 @@ int main(int argc, char *argv[])
 
       // Handling the echo command 
       if (strncmp(cmdque, echoCmd, 5) == 0) {
-        printf("%s\n$ ", cmdque + 5); // skips the first 5 things and prints them
+        printf("%s\n$ ", cmdque + 5);
         cleanCmds(cmdque, &i);
         continue;
       }

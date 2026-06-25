@@ -40,5 +40,6 @@ int strLen(char *);
 
 void handlePwd();
 void handleCd(char *);
+void formatCmd(char *);
 
 #endif

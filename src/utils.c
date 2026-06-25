@@ -86,3 +86,43 @@ bool isEmpty(char *str)
 {
   return (*str == '\0');    
 }
+
+void formatCmd(char *cmd)
+{
+  bool sp_found = 0, isquote = 0;
+  char *pt = cmd, *st = cmd;
+  int len = strLen(cmd);
+
+  while (*cmd != '\0') {
+    if (*cmd == '\'') {
+      if (!isquote) {
+        isquote = 1;
+        sp_found = 0;
+      } else isquote = 0;
+      ++cmd;
+      continue;
+    }
+
+    if (isquote) {
+      *pt++ = *cmd++;
+    } else {
+      if (*cmd == ' ') {
+        if (!sp_found) {
+          *pt++ = *cmd++;
+          ++sp_found;
+        } else {
+          ++cmd;
+        }
+      } else {
+        *pt++ = *cmd++;
+        sp_found = 0;
+      }
+    }
+  }
+
+  *pt = '\0';
+  int l2 = strLen(st);
+  
+  while (l2++ < len) 
+    *pt++ = '\0';
+}
