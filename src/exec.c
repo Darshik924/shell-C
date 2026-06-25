@@ -70,6 +70,11 @@ int buildArgv(char *cmdline, char ***outArgv)
   for (int i = 0; i <= len; ++i) {
     char c = s[i];
 
+    if (c == '\\' && inSingleQuote) {
+      token[toklen++] = c;
+      continue;
+    }
+
     if (c == '\\') {
       if (i < len) ++i;
       c = s[i];

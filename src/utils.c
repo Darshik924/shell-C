@@ -96,6 +96,11 @@ void formatCmd(char *cmd)
 
   while (*cmd != '\0') {
 
+    if (*cmd == '\\' && isquote) {
+      *pt++ = *cmd++;
+      continue;
+    }
+
     if (*cmd == '\\') {
       *pt++ = *++cmd;
       ++cmd;
