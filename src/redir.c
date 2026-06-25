@@ -30,12 +30,13 @@ void handleEcho(char *cmd)
             break;
         } else if (*scan == '2' && *(scan + 1) == '>') {
             isDirected1 = true;
-            isDirected= true;
+            isDirected= false;
             // *scan = '\0';
             // Alice is a cannot be cruel 2> 
             while (*--scan == ' ')
                 ;
             *++scan = '\0';
+            redirectPos = ++scan;
             printf("%s\n$ ", st);
             break;
         }
