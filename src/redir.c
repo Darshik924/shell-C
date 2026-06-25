@@ -29,8 +29,8 @@ void handleEcho(char *cmd)
             isDirected1 = true;
             break;
         } else if (*scan == '2' && *(scan + 1) == '>') {
-            isDirected1 = false;
-            isDirected= false;
+            isDirected1 = true;
+            isDirected= true;
             // *scan = '\0';
             // Alice is a cannot be cruel 2> 
             while (*--scan == ' ')
