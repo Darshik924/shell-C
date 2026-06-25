@@ -41,30 +41,73 @@ char *findExecutable(char *name)
 
 int buildArgv(char *cmdline, char ***outArgv) 
 {
-  char *s; 
-  s = strdup(cmdline);
-
-  char *saveptr = NULL;
-  int cap = 8, n = 0;
-
-  char **argv = malloc(cap * sizeof(char*));
-
-  char *tok = strtok_r(s, " ", &saveptr);
-
-  while (tok) {
-    if (n+1 >= cap) {
-        cap *= 2; 
-        argv = realloc(argv, cap * sizeof(char*));
-    }
-    argv[n++] = strdup(tok);
-
-    tok = strtok_r(NULL, " ", &saveptr);
+  char *s = strdup(cmdline);
+  if (!s) {
+    *outArgv = NULL;
+    return 0;
   }
+
+  int cap = 8, n = 0;
+  char **argv = malloc(cap * sizeof(char*));
+  if (!argv) {
+    free(s);
+    *outArgv = NULL;
+    return 0;
+  }
+
+  int len = strlen(s);
+  char *token = malloc(len + 1);
+  if (!token) {
+    free(s);
+    free(argv);
+    *outArgv = NULL;
+    return 0;
+  }
+
+  bool inquote = false;
+  int toklen = 0;
+
+  for (int i = 0; i <= len; ++i) {
+    char c = s[i];
+
+    if (c == '\'') {
+      inquote = !inquote;
+      continue;
+    }
+
+    if (c == ' ' && !inquote) {
+      if (toklen > 0) {
+        token[toklen] = '\0';
+        if (n+1 >= cap) {
+          cap *= 2;
+          argv = realloc(argv, cap * sizeof(char*));
+        }
+        argv[n++] = strdup(token);
+        toklen = 0;
+      }
+      continue;
+    }
+
+    if (c == '\0') {
+      if (toklen > 0) {
+        token[toklen] = '\0';
+        if (n+1 >= cap) {
+          cap *= 2;
+          argv = realloc(argv, cap * sizeof(char*));
+        }
+        argv[n++] = strdup(token);
+      }
+      break;
+    }
+
+    token[toklen++] = c;
+  }
+
   argv[n] = NULL;
-
+  free(token);
   free(s);
-  *outArgv = argv;
 
+  *outArgv = argv;
   return n;
 }
 
