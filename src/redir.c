@@ -28,6 +28,15 @@ void handleEcho(char *cmd)
             redirectPos = scan;
             isDirected1 = true;
             break;
+        } else if (*scan == '2' && *(scan + 1) == '>') {
+            isDirected1 = false;
+            isDirected= false;
+            // *scan = '\0';
+            // Alice is a cannot be cruel 2> 
+            while (*--scan == ' ')
+                ;
+            *++scan = '\0';
+            break;
         }
         scan++;
     }
