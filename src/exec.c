@@ -150,9 +150,7 @@ int buildArgv(char *cmdline, char ***outArgv)
 bool runExternal(char *cmdline) 
 {
   char **argv;
-  // ls -l /tmp NULL
   int argc = buildArgv(cmdline, &argv);
-  // Above line converts this string into an array like as execv() function requires this format 
 
   if (argc == 0) { 
     freeArgv(argv); 
@@ -160,8 +158,27 @@ bool runExternal(char *cmdline)
     return true; 
   }   
 
+  // 1. Check for Redirection
+  char *outputFile = NULL;
+  int redirectIndex = -1;
+
+  for (int i = 0; argv[i] != NULL; i++) {
+    if (strcmp(argv[i], ">") == 0) {
+      if (argv[i+1] != NULL) {
+        outputFile = argv[i+1];
+        redirectIndex = i;
+        // Terminate argv array here so execv doesn't see "> filename"
+        argv[i] = NULL; 
+        break; 
+      } else {
+        printf("Syntax error: missing filename after '>'\n$ ");
+        freeArgv(argv);
+        return true;
+      }
+    }
+  }
+
   char *full = findExecutable(argv[0]);
-  // This above finds the actual path for the command name
 
   if (!full) { 
     printf("%s: not found\n$ ", argv[0]); 
@@ -172,20 +189,41 @@ bool runExternal(char *cmdline)
   pid_t pid = fork();
 
   if (pid == 0) {
-    execv(full, argv);
-    // Requires a NULL terminated array so we fill a NULL at the end
+    // --- CHILD PROCESS ---
+    
+    // 2. Handle Redirection if detected
+    if (outputFile != NULL) {
+      int fd = open(outputFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      if (fd < 0) {
+        perror("open");
+        _exit(1);
+      }
+      
+      // Redirect stdout to the file
+      if (dup2(fd, STDOUT_FILENO) < 0) {
+        perror("dup2");
+        _exit(1);
+      }
+      close(fd); // fd is no longer needed, STDOUT_FILENO is now the file
+    }
 
+    execv(full, argv);
+    
+    // If execv returns, it failed
     perror("execv");
     _exit(127);
+    
   } else if (pid < 0) {
+    // --- FORK FAILED ---
     perror("fork");
   } else {
-
+    // --- PARENT PROCESS ---
     int status;
     waitpid(pid, &status, 0);
   }
+
   free(full);
-  freeArgv(argv);
+  freeArgv(argv); // Frees the modified argv (where '>' was set to NULL)
   printf("$ ");
   return true;
 }
