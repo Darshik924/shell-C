@@ -6,6 +6,7 @@ void handleEcho(char *cmd)
     char mes[MAX];
     char fileName[MAX];
     bool isDirected = false;
+    bool isDirected1 = false;
     char *redirectPos = NULL;
     while (*cmd != '\0')
     {
@@ -14,11 +15,15 @@ void handleEcho(char *cmd)
             redirectPos = cmd;
             isDirected = true;
             break;
+        } else if (*cmd == '1' && *(cmd+1) == '>') {
+            redirectPos = cmd;
+            isDirected1 = true;
+            break;
         }
         cmd++;
     }
 
-    if (!isDirected)
+    if (!isDirected && !isDirected1)
         printf("%s\n$ ", st);
     else
     {
@@ -27,7 +32,12 @@ void handleEcho(char *cmd)
         *redirectPos = '\0';
 
         // Move pointer past '>'
-        char *fnPtr = redirectPos + 1;
+        char *fnPtr;
+        if (isDirected1) {
+            fnPtr = redirectPos + 2;
+        } else {
+            fnPtr = redirectPos + 1;
+        }
 
         // Skip leading whitespace in filename
         while (*fnPtr == ' ' || *fnPtr == '\t')
