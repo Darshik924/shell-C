@@ -89,11 +89,26 @@ bool isEmpty(char *str)
 
 void formatCmd(char *cmd)
 {
-  bool sp_found = 0, isquote = 0;
+  bool sp_found = 0, isquote = 0, isDquote = 0;
+
   char *pt = cmd, *st = cmd;
   int len = strLen(cmd);
 
   while (*cmd != '\0') {
+    if (*cmd == '\"') {
+      if (!isDquote) {
+        isDquote = 1;
+        sp_found = 0;
+      } else isDquote = 0;
+      ++cmd;
+      continue;
+    }
+
+    if (*cmd == '\'' && isDquote){
+      *pt++ = *cmd++;
+      continue;
+    }
+
     if (*cmd == '\'') {
       if (!isquote) {
         isquote = 1;
@@ -103,7 +118,7 @@ void formatCmd(char *cmd)
       continue;
     }
 
-    if (isquote) {
+    if (isquote || isDquote) {
       *pt++ = *cmd++;
     } else {
       if (*cmd == ' ') {

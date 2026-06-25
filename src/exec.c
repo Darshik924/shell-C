@@ -64,18 +64,32 @@ int buildArgv(char *cmdline, char ***outArgv)
     return 0;
   }
 
-  bool inquote = false;
+  bool inSingleQuote = false, inDoubleQuote = false;
   int toklen = 0;
 
   for (int i = 0; i <= len; ++i) {
     char c = s[i];
 
-    if (c == '\'') {
-      inquote = !inquote;
+    // Handle double quotes
+    if (c == '\"') {
+      inDoubleQuote = !inDoubleQuote;
       continue;
     }
 
-    if (c == ' ' && !inquote) {
+    // Handle single quotes
+    if (c == '\'') {
+      if (inDoubleQuote) {
+        // Single quote inside double quotes is literal
+        token[toklen++] = c;
+      } else {
+        // Toggle single quote mode
+        inSingleQuote = !inSingleQuote;
+      }
+      continue;
+    }
+
+    // Space is delimiter only outside both quote types
+    if (c == ' ' && (!inSingleQuote && !inDoubleQuote)) {
       if (toklen > 0) {
         token[toklen] = '\0';
         if (n+1 >= cap) {
