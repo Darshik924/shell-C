@@ -37,7 +37,7 @@ void handleEcho(char *cmd)
                 ;
             *++scan = '\0';
             redirectPos = ++scan;
-            printf("%s\n$ ", st);
+            printf("%s\n", st);
             break;
         }
         scan++;
