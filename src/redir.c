@@ -8,7 +8,7 @@ void handleEcho(char *cmd)
     char *st = cmd;
     char fileName[MAX];
     bool isDirected = false;
-    bool isDirected1 = false; // For '1>' (explicit stdout)
+    bool isDirected1 = false, isDirected2 = false; // For '1>' (explicit stdout)
     char *redirectPos = NULL;
     char *scan = cmd; // Use a separate pointer for scanning to preserve 'st'
 
@@ -30,7 +30,8 @@ void handleEcho(char *cmd)
             break;
         } else if (*scan == '2' && *(scan + 1) == '>') {
             isDirected1 = true;
-            isDirected= false;
+            // isDirected = false;
+            isDirected2 = true;
             // *scan = '\0';
             // Alice is a cannot be cruel 2> 
             while (*--scan == ' ')
@@ -78,27 +79,30 @@ void handleEcho(char *cmd)
             return;
         }
 
-        // Redirect stdout to file
-        if (dup2(fd, 1) < 0)
-        {
-            perror("dup2 failed");
+        if (!isDirected2) {
+            // Redirect stdout to file
+            if (dup2(fd, 1) < 0)   
+            {
+                perror("dup2 failed");
+                close(fd);
+                close(saved_stdout);
+                return;
+            }
             close(fd);
-            close(saved_stdout);
-            return;
-        }
-        close(fd);
 
-        // Write ONLY the message to the file
-        printf("%s\n", st);
+            // Write ONLY the message to the file
+            printf("%s\n", st);
 
-        // RESTORE stdout to terminal
-        if (dup2(saved_stdout, 1) < 0)
-        {
-            perror("dup2 restore");
+            // RESTORE stdout to terminal
+            if (dup2(saved_stdout, 1) < 0)
+            {
+                perror("dup2 restore");
+                close(saved_stdout);
+                return;
+            }
             close(saved_stdout);
-            return;
         }
-        close(saved_stdout);
+        
 
         printf("$ ");
         fflush(stdout); // Ensure prompt appears immediately
