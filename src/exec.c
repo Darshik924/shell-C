@@ -74,6 +74,7 @@ int buildArgv(char *cmdline, char ***outArgv)
       if (i < len) ++i;
       c = s[i];
       token[toklen++] = c;
+      continue;
     }
 
     // Handle double quotes
