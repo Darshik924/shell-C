@@ -84,7 +84,13 @@ int buildArgv(char *cmdline, char ***outArgv)
 
     // Handle double quotes
     if (c == '\"') {
-      inDoubleQuote = !inDoubleQuote;
+      if (inSingleQuote) {
+        // Double quote inside single Quotes is literal
+        token[toklen++] = c;
+      } else {
+        inDoubleQuote = !inDoubleQuote;
+        // Toggle State
+      }
       continue;
     }
 
