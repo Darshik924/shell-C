@@ -1,89 +1,95 @@
 #include "utils.h"
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
 
 void handleEcho(char *cmd)
 {
     char *st = cmd;
-    char mes[MAX];
     char fileName[MAX];
     bool isDirected = false;
-    bool isDirected1 = false;
+    bool isDirected1 = false; // For '1>' (explicit stdout)
     char *redirectPos = NULL;
-    while (*cmd != '\0')
+    char *scan = cmd; // Use a separate pointer for scanning to preserve 'st'
+
+    // 1. Scan for '>' or '1>'
+    while (*scan != '\0')
     {
-        if (*cmd == '>')
+        if (*scan == '>' && (scan == cmd || *(scan - 1) != '1'))
         {
-            redirectPos = cmd;
+            // Check if it's just '>' (and not part of '1>')
+            // If input is " >", this one catches it.
+            redirectPos = scan;
             isDirected = true;
             break;
-        } else if (*cmd == '1' && *(cmd+1) == '>') {
-            redirectPos = cmd;
+        }
+        else if (*scan == '1' && *(scan + 1) == '>')
+        {
+            redirectPos = scan;
             isDirected1 = true;
             break;
         }
-        cmd++;
+        scan++;
     }
 
     if (!isDirected && !isDirected1)
+    {
         printf("%s\n$ ", st);
+    }
     else
     {
-        // 2. Parse the filename
-        // Terminate the message string at '>'
-        *redirectPos = '\0';
-
-        // Move pointer past '>'
-        char *fnPtr;
-        if (isDirected1) {
-            fnPtr = redirectPos + 2;
-        } else {
-            fnPtr = redirectPos + 1;
-        }
-
-        // Skip leading whitespace in filename
-        while (*fnPtr == ' ' || *fnPtr == '\t')
-            fnPtr++;
-
-        // Extract filename (stop at next space or end)
-        int i = 0;
-        while (fnPtr[i] != '\0' && fnPtr[i] != ' ' && fnPtr[i] != '\n')
+        // Save the original Terminal Output (fd 1)
+        int saved_stdout = dup(1);
+        if (saved_stdout < 0)
         {
-            fileName[i] = fnPtr[i];
-            i++;
-        }
-        fileName[i] = '\0';
-
-        // 3. Open the file
-        // O_WRONLY: Write only
-        // O_CREAT: Create if doesn't exist
-        // O_TRUNC: Overwrite if exists (crucial for '>')
-        // 0644: Permissions (rw-r--r--)
-        int fd = open(fileName, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-        if (fd < 0)
-        {
-            perror("Error opening file");
+            perror("dup");
             return;
         }
 
-        // 4. Redirect Standard Output (fd 1) to the file
-        // dup2(fd, 1) makes fd 1 point to the same file as fd
+        // Parse the filename
+        *redirectPos = '\0'; // Terminate message string
+
+        char *fnPtr = isDirected1 ? redirectPos + 2 : redirectPos + 1;
+        while (*fnPtr == ' ' || *fnPtr == '\t')
+            fnPtr++;
+
+        int i = 0;
+        while (fnPtr[i] != '\0' && fnPtr[i] != ' ' && fnPtr[i] != '\n')
+            fileName[i++] = fnPtr[i];
+        fileName[i] = '\0';
+
+        // Open File
+        int fd = open(fileName, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd < 0)
+        {
+            perror("Error opening file");
+            close(saved_stdout);
+            return;
+        }
+
+        // Redirect stdout to file
         if (dup2(fd, 1) < 0)
         {
             perror("dup2 failed");
             close(fd);
+            close(saved_stdout);
             return;
         }
-
-        // Close the original fd, as fd 1 is now the duplicate
         close(fd);
 
-        // 5. Perform the output
-        // Since we redirected fd 1, printf now writes to the file
-        printf("%s\n$ ", st);
+        // Write ONLY the message to the file
+        printf("%s\n", st);
 
-        // Optional: Restore stdout if you need to print more to terminal later
-        // For a simple command execution, the process often exits or execs here.
-        // If this is a built-in and you stay in the shell, you might want to save
-        // the original stdout (int saved_stdout = dup(1);) before dup2 and restore it after.
+        // RESTORE stdout to terminal
+        if (dup2(saved_stdout, 1) < 0)
+        {
+            perror("dup2 restore");
+            close(saved_stdout);
+            return;
+        }
+        close(saved_stdout);
+
+        printf("$ ");
+        fflush(stdout); // Ensure prompt appears immediately
     }
 }
