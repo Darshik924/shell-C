@@ -184,22 +184,23 @@ bool runExternal(char *cmdline)
     return true;
   }
 
-  // 1. Check for Redirection (support ">", "1>", "2>", ">file", "1>file", and "2>file")
   char *outputFile = NULL;
   int redirectIndex = -1;
   int redirectFd = 1;
+  bool appendOutput = false;
 
   for (int i = 0; argv[i] != NULL; i++)
   {
     char *a = argv[i];
 
-    if (strcmp(a, ">") == 0 || strcmp(a, "1>") == 0)
+    if (strcmp(a, ">") == 0 || strcmp(a, "1>") == 0 || strcmp(a, ">>") == 0 || strcmp(a, "1>>") == 0)
     {
       if (argv[i + 1] != NULL)
       {
         redirectFd = 1;
         outputFile = argv[i + 1];
         redirectIndex = i;
+        appendOutput = (strcmp(a, ">>") == 0 || strcmp(a, "1>>") == 0);
         argv[i] = NULL;
         break;
       }
@@ -211,13 +212,14 @@ bool runExternal(char *cmdline)
       }
     }
 
-    if (strcmp(a, "2>") == 0)
+    if (strcmp(a, "2>") == 0 || strcmp(a, "2>>") == 0)
     {
       if (argv[i + 1] != NULL)
       {
         redirectFd = 2;
         outputFile = argv[i + 1];
         redirectIndex = i;
+        appendOutput = (strcmp(a, "2>>") == 0);
         argv[i] = NULL;
         break;
       }
@@ -229,12 +231,33 @@ bool runExternal(char *cmdline)
       }
     }
 
-    // Handle attached filename forms: ">file", "1>file" or "2>file"
+    // Handle attached filename forms: ">file", "1>file", ">>file", "1>>file", "2>>file"
+    if (a[0] == '>' && a[1] == '>' && a[2] != '\0')
+    {
+      redirectFd = 1;
+      outputFile = a + 2;
+      redirectIndex = i;
+      appendOutput = true;
+      argv[i] = NULL;
+      break;
+    }
+
     if (a[0] == '>' && a[1] != '\0')
     {
       redirectFd = 1;
       outputFile = a + 1;
       redirectIndex = i;
+      appendOutput = false;
+      argv[i] = NULL;
+      break;
+    }
+
+    if (a[0] == '1' && a[1] == '>' && a[2] == '>' && a[3] != '\0')
+    {
+      redirectFd = 1;
+      outputFile = a + 3;
+      redirectIndex = i;
+      appendOutput = true;
       argv[i] = NULL;
       break;
     }
@@ -244,6 +267,17 @@ bool runExternal(char *cmdline)
       redirectFd = 1;
       outputFile = a + 2;
       redirectIndex = i;
+      appendOutput = false;
+      argv[i] = NULL;
+      break;
+    }
+
+    if (a[0] == '2' && a[1] == '>' && a[2] == '>' && a[3] != '\0')
+    {
+      redirectFd = 2;
+      outputFile = a + 3;
+      redirectIndex = i;
+      appendOutput = true;
       argv[i] = NULL;
       break;
     }
@@ -253,6 +287,7 @@ bool runExternal(char *cmdline)
       redirectFd = 2;
       outputFile = a + 2;
       redirectIndex = i;
+      appendOutput = false;
       argv[i] = NULL;
       break;
     }
@@ -276,7 +311,8 @@ bool runExternal(char *cmdline)
     // 2. Handle Redirection if detected
     if (outputFile != NULL)
     {
-      int fd = open(outputFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      int flags = O_WRONLY | O_CREAT | (appendOutput ? O_APPEND : O_TRUNC);
+      int fd = open(outputFile, flags, 0644);
       if (fd < 0)
       {
         perror("open");

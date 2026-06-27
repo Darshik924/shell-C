@@ -1,110 +1,120 @@
 #include "utils.h"
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
 
 void handleEcho(char *cmd)
 {
     char *st = cmd;
     char fileName[MAX];
-    bool isDirected = false;
-    bool isDirected1 = false, isDirected2 = false; // For '1>' (explicit stdout)
+    bool hasRedirect = false;
+    bool isStdErr = false;
+    bool isAppend = false;
     char *redirectPos = NULL;
-    char *scan = cmd; // Use a separate pointer for scanning to preserve 'st'
+    int operatorLen = 0;
+    char *scan = cmd;
 
-    // 1. Scan for '>' or '1>'
     while (*scan != '\0')
     {
-        if (*scan == '>' && (scan == cmd || *(scan - 1) != '1'))
+        if (*scan == '>' && *(scan + 1) == '>')
         {
-            // Check if it's just '>' (and not part of '1>')
-            // If input is " >", this one catches it.
+            hasRedirect = true;
             redirectPos = scan;
-            isDirected = true;
+            operatorLen = 2;
+            isAppend = true;
             break;
         }
-        else if (*scan == '1' && *(scan + 1) == '>')
+        if (*scan == '1' && *(scan + 1) == '>' && *(scan + 2) == '>')
         {
+            hasRedirect = true;
             redirectPos = scan;
-            isDirected1 = true;
+            operatorLen = 3;
+            isAppend = true;
             break;
-        } else if (*scan == '2' && *(scan + 1) == '>') {
-            isDirected1 = true;
-            // isDirected = false;
-            isDirected2 = true;
-            // *scan = '\0';
-            // Alice is a cannot be cruel 2> 
-            while (*--scan == ' ')
-                ;
-            *++scan = '\0';
-            redirectPos = ++scan;
-            printf("%s\n", st);
+        }
+        if (*scan == '2' && *(scan + 1) == '>' && *(scan + 2) == '>')
+        {
+            hasRedirect = true;
+            redirectPos = scan;
+            operatorLen = 3;
+            isAppend = true;
+            isStdErr = true;
+            break;
+        }
+        if (*scan == '>' && (scan == cmd || *(scan - 1) != '1'))
+        {
+            hasRedirect = true;
+            redirectPos = scan;
+            operatorLen = 1;
+            break;
+        }
+        if (*scan == '1' && *(scan + 1) == '>')
+        {
+            hasRedirect = true;
+            redirectPos = scan;
+            operatorLen = 2;
+            break;
+        }
+        if (*scan == '2' && *(scan + 1) == '>')
+        {
+            hasRedirect = true;
+            redirectPos = scan;
+            operatorLen = 2;
+            isStdErr = true;
             break;
         }
         scan++;
     }
 
-    if (!isDirected && !isDirected1)
+    if (!hasRedirect)
     {
         printf("%s\n$ ", st);
+        return;
     }
-    else
+
+    int saved_fd = dup(isStdErr ? 2 : 1);
+    if (saved_fd < 0)
     {
-        // Save the original Terminal Output (fd 1)
-        int saved_stdout = dup(1);
-        if (saved_stdout < 0)
-        {
-            perror("dup");
-            return;
-        }
-
-        // Parse the filename
-        *redirectPos = '\0'; // Terminate message string
-
-        char *fnPtr = isDirected1 ? redirectPos + 2 : redirectPos + 1;
-        while (*fnPtr == ' ' || *fnPtr == '\t')
-            fnPtr++;
-
-        int i = 0;
-        while (fnPtr[i] != '\0' && fnPtr[i] != ' ' && fnPtr[i] != '\n')
-            fileName[i++] = fnPtr[i];
-        fileName[i] = '\0';
-
-        // Open File
-        int fd = open(fileName, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd < 0)
-        {
-            perror("Error opening file");
-            close(saved_stdout);
-            return;
-        }
-
-        if (!isDirected2) {
-            // Redirect stdout to file
-            if (dup2(fd, 1) < 0)   
-            {
-                perror("dup2 failed");
-                close(fd);
-                close(saved_stdout);
-                return;
-            }
-            close(fd);
-
-            // Write ONLY the message to the file
-            printf("%s\n", st);
-
-            // RESTORE stdout to terminal
-            if (dup2(saved_stdout, 1) < 0)
-            {
-                perror("dup2 restore");
-                close(saved_stdout);
-                return;
-            }
-            close(saved_stdout);
-        }
-        
-
-        printf("$ ");
-        fflush(stdout); // Ensure prompt appears immediately
+        perror("dup");
+        return;
     }
+
+    *redirectPos = '\0';
+
+    char *fnPtr = redirectPos + operatorLen;
+    while (*fnPtr == ' ' || *fnPtr == '\t')
+        fnPtr++;
+
+    int i = 0;
+    while (fnPtr[i] != '\0' && fnPtr[i] != ' ' && fnPtr[i] != '\n' && fnPtr[i] != '\t')
+        fileName[i++] = fnPtr[i];
+    fileName[i] = '\0';
+
+    int flags = O_WRONLY | O_CREAT | (isAppend ? O_APPEND : O_TRUNC);
+    int fd = open(fileName, flags, 0644);
+    if (fd < 0)
+    {
+        perror("Error opening file");
+        close(saved_fd);
+        return;
+    }
+
+    if (dup2(fd, isStdErr ? 2 : 1) < 0)
+    {
+        perror("dup2 failed");
+        close(fd);
+        close(saved_fd);
+        return;
+    }
+    close(fd);
+
+    printf("%s\n", st);
+
+    if (dup2(saved_fd, isStdErr ? 2 : 1) < 0)
+    {
+        perror("dup2 restore");
+        close(saved_fd);
+        return;
+    }
+    close(saved_fd);
+
+    printf("$ ");
+    fflush(stdout);
 }

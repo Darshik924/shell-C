@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
       // Cmd que at this pt is trimmed totally Next look for the builtin commands
       formatCmd(cmdque);
       // formatCmd function will remove all the extra spaces except the quotes and with quotes it will give described behaviour to our string all editing the string in place
-      /* Make a formatCmd function that formats our cmd with using single and double quotes at this point */
 
       // Handling the pwd command
       if (strcmp(cmdque, pwdCmd) == 0) {

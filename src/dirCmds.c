@@ -16,36 +16,10 @@ void handleCd(char *path)
   while (*path == ' ') 
     ++path;
 
-  char *home = getenv("HOME");
-
   if (path == NULL || strLen(path) == 0 || *path == '\0') {
-    if (home != NULL){
-        if (chdir(home) == -1) 
-            perror("cd");
-    }
-    else 
-        fprintf(stderr, "cd: HOME not set\n");
-    
+    printf("cd: error no path supplied\n");
     return;
   }
-
-  if (*path == '~') {
-    if (home == NULL) {
-        fprintf(stderr, "cd: HOME not set\n");
-        return;
-    }
-
-    char *rest = (*++path == '\0' ? "" : path);
-    
-    char fullPath[MAX * 2];
-    snprintf(fullPath, sizeof(fullPath), "%s%s", home, rest);
-
-    if (chdir(fullPath) == -1) {
-        perror("cd");
-    }
-    return;
-  }
-
 
   if (*path != '/' && *path != '.') {
     printf("cd: expected an absolute or a relative path to start with '/' or '.'\n");
