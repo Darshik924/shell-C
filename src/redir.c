@@ -7,6 +7,7 @@ void handleEcho(char *cmd)
     bool hasRedirect = false;
     bool isStdErr = false;
     bool isAppend = false;
+    /* Gettign States for our echo command on which depends what decision to take */
     char *redirectPos = NULL;
     int operatorLen = 0;
     char *scan = cmd;

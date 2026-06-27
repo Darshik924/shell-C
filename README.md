@@ -1,34 +1,78 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/933c3967-671d-46bb-b820-78298e528dc5)](https://app.codecrafters.io/users/Darshik924?r=2qF)
+# Shell (C)
 
-This is a starting point for C solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+A small educational Unix-like command shell implemented in C. The project demonstrates command parsing, builtins, and I/O redirection (including support for `>`, `>>`, `1>`, `1>>`, and `2>`).
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+## Features
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+- Simple interactive prompt
+- Builtin commands: `pwd`, `cd`, `exit`, `type`, `echo`
+- Execute external programs found via `PATH`
+- Output redirection: overwrite (`>` / `1>` / `2>`) and append (`>>` / `1>>` / `2>>`)
+- Basic handling of quoted arguments and escapes
 
-# Passing the first stage
+## Repository layout
 
-The entry point for your `shell` implementation is in `src/main.c`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
+- `src/` — all C source files and headers (the shell implementation)
+- `CMakeLists.txt` — optional CMake build configuration
 
-```sh
-codecrafters submit
+Key files in `src/`:
+
+- `main.c` — main loop and command dispatch
+- `exec.c` — external command execution and redirection handling
+- `redir.c` — builtin `echo` and redirection helper logic
+- `utils.c`, `utils.h` — helper utilities and parsing helpers
+
+## Build
+
+Preferred: CMake (if available on your system)
+
+```bash
+mkdir -p build
+cmake -S . -B build
+cmake --build build
+./build/shell
 ```
 
-Time to move on to the next stage!
+Fallback: compile with `cc`/`gcc` directly
 
-# Stage 2 & beyond
+```bash
+cc -D_POSIX_C_SOURCE=200809L -std=c23 src/*.c -o shell_c
+./codecrafters_shell
+```
 
-Note: This section is for stages 2 and beyond.
+## Usage examples
 
-1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.c`.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
+- Run builtins:
+
+```text
+$ pwd
+/home/user/project
+$ cd src
+$ exit
+```
+
+- Execute external commands and redirect output:
+
+```text
+$ ls -l > out.txt       # overwrite out.txt
+$ echo hello >> out.txt # append to out.txt
+$ /bin/echo hi 1>> out.txt
+$ somecmd 2> errors.txt # redirect stderr
+```
+
+## Notes & limitations
+
+- This is an educational/demo shell and does not implement full POSIX shell features (no job control, pipelines, complex expansions, or robust signal handling).
+- Quoting and escaping aim to be helpful but are not a complete shell parser.
+
+## Contributing
+
+Patches, bug reports, and improvements are welcome. Please open a GitHub issue or submit a PR.
+
+## License
+
+MIT License — feel free to reuse and adapt.
+
+---
+
+This README was generated to document a shell implementation in C located in the `src/` directory.

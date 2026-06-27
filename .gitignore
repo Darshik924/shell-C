@@ -56,3 +56,10 @@ build
 vcpkg_installed
 
 src/tmp/
+
+.codecrafters/
+codecrafters.yml
+
+vcpkg.json
+vcpkg-configuration.json
+

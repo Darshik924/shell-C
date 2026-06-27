@@ -1,14 +1,9 @@
 #include "utils.h"
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 char *findExecutable(char *name)
 {
   if (strChr(name, '/'))
   {
-
     if (access(name, X_OK) == 0)
       return strdup(name);
 
@@ -98,13 +93,13 @@ int buildArgv(char *cmdline, char ***outArgv)
     {
       if (inSingleQuote)
       {
-        // Double quote inside single Quotes is literal
+        // a double quote inside single Quotes is literal just copy that
         token[toklen++] = c;
       }
       else
       {
         inDoubleQuote = !inDoubleQuote;
-        // Toggle State
+        // toggle state for the double quote 
       }
       continue;
     }
@@ -114,18 +109,18 @@ int buildArgv(char *cmdline, char ***outArgv)
     {
       if (inDoubleQuote)
       {
-        // Single quote inside double quotes is literal
+        // a single quote inside double quotes is literal again copy that
         token[toklen++] = c;
       }
       else
       {
-        // Toggle single quote mode
+        // toggle single quote mode
         inSingleQuote = !inSingleQuote;
       }
       continue;
     }
 
-    // Space is delimiter only outside both quote types
+    // space not needed only when outside both quote types
     if (c == ' ' && (!inSingleQuote && !inDoubleQuote))
     {
       if (toklen > 0)
@@ -188,6 +183,7 @@ bool runExternal(char *cmdline)
   int redirectIndex = -1;
   int redirectFd = 1;
   bool appendOutput = false;
+  // declaring states for what work is to be done states
 
   for (int i = 0; argv[i] != NULL; i++)
   {
@@ -336,7 +332,6 @@ bool runExternal(char *cmdline)
   }
   else if (pid < 0)
   {
-    // --- FORK FAILED ---
     perror("fork");
   }
   else
@@ -347,7 +342,7 @@ bool runExternal(char *cmdline)
   }
 
   free(full);
-  freeArgv(argv); // Frees the modified argv (where '>' was set to NULL)
+  freeArgv(argv); // we free the modified argv (where '>' was set to NULL)
   printf("$ ");
   return true;
 }
