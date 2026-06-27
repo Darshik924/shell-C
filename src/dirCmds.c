@@ -21,7 +21,30 @@ void handleCd(char *path)
     return;
   }
 
-  if (*path != '/' && *path != '.') {
+  char resolved[MAX];
+
+  if (*path == '~') {
+    char *home = getenv("HOME");
+    if (home == NULL) {
+      printf("cd: HOME not set\n");
+      return;
+    }
+
+    if (*(path + 1) == '\0') {
+      strncpy(resolved, home, MAX - 1);
+      resolved[MAX - 1] = '\0';
+    } else if (*(path + 1) == '/') {
+      // '~/some/path'
+      snprintf(resolved, MAX, "%s%s", home, path + 1);
+    } else {
+      // '~something'  is not a valid path
+      printf("cd: invalid path: %s\n", path);
+      return;
+    }
+    path = resolved;
+  }
+
+  if (*path != '/' && *path != '.' && *path != '~') {
     printf("cd: expected an absolute or a relative path to start with '/' or '.'\n");
     return;
   }
