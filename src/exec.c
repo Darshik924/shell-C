@@ -1,5 +1,6 @@
 #include "utils.h"
 
+// Function that finds the executable program (eg. ls, cat,..)
 char *findExecutable(char *name)
 {
   if (strChr(name, '/'))
@@ -38,6 +39,7 @@ char *findExecutable(char *name)
   return NULL;
 }
 
+// main argument builder function that will structure everything
 int buildArgv(char *cmdline, char ***outArgv)
 {
   char *s = strdup(cmdline);
@@ -66,6 +68,7 @@ int buildArgv(char *cmdline, char ***outArgv)
     return 0;
   }
 
+  // quoting required logic
   bool inSingleQuote = false, inDoubleQuote = false;
   int toklen = 0;
 
@@ -73,6 +76,7 @@ int buildArgv(char *cmdline, char ***outArgv)
   {
     char c = s[i];
 
+    // Handling the backlash character
     if (c == '\\' && inSingleQuote)
     {
       token[toklen++] = c;
@@ -99,7 +103,7 @@ int buildArgv(char *cmdline, char ***outArgv)
       else
       {
         inDoubleQuote = !inDoubleQuote;
-        // toggle state for the double quote 
+        // toggle state for the double quote
       }
       continue;
     }
@@ -166,7 +170,6 @@ int buildArgv(char *cmdline, char ***outArgv)
 // Our main entry point of executing a shell command
 // What this function does is recieves cmdline, calls buildArgv using cmdline and &argv which builds our command
 // If executable is found just fork and return it. Else prints an error
-
 bool runExternal(char *cmdline)
 {
   char **argv;
@@ -202,7 +205,7 @@ bool runExternal(char *cmdline)
       }
       else
       {
-        printf("Syntax error: missing filename after '%s'\n$ ", a);
+        printf("syntax error: missing filename after '%s'\n$ ", a);
         freeArgv(argv);
         return true;
       }
@@ -221,7 +224,7 @@ bool runExternal(char *cmdline)
       }
       else
       {
-        printf("Syntax error: missing filename after '%s'\n$ ", a);
+        printf("syntax error: missing filename after '%s'\n$ ", a);
         freeArgv(argv);
         return true;
       }
@@ -302,11 +305,10 @@ bool runExternal(char *cmdline)
 
   if (pid == 0)
   {
-    // --- CHILD PROCESS ---
-
-    // 2. Handle Redirection if detected
+    // Handle the Redirection if detected
     if (outputFile != NULL)
     {
+      // redirection logic (redir.c)
       int flags = O_WRONLY | O_CREAT | (appendOutput ? O_APPEND : O_TRUNC);
       int fd = open(outputFile, flags, 0644);
       if (fd < 0)

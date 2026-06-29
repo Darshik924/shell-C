@@ -93,6 +93,7 @@ bool isEmpty(char *str)
   return (*str == '\0');    
 }
 
+// Function formats (effectively removes the unwanted spaces in place while also keeping in mind backslash and quotes)
 void formatCmd(char *cmd)
 {
   bool sp_found = 0, isquote = 0, isDquote = 0;

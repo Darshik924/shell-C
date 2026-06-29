@@ -89,9 +89,12 @@ void handleEcho(char *cmd)
     fileName[i] = '\0';
 
     int flags = O_WRONLY | O_CREAT | (isAppend ? O_APPEND : O_TRUNC);
+    // Access modes are open write only, create if missing, append at the end file, truncate existing file to zero length
     int fd = open(fileName, flags, 0644);
+    /* Open the file for reading or writing to the file */
     if (fd < 0)
     {
+        // handle errors to the file
         perror("Error opening file");
         close(saved_fd);
         return;
@@ -99,6 +102,7 @@ void handleEcho(char *cmd)
 
     if (dup2(fd, isStdErr ? 2 : 1) < 0)
     {
+        // handle erros to the file
         perror("dup2 failed");
         close(fd);
         close(saved_fd);
