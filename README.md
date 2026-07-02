@@ -13,7 +13,6 @@ A small educational Unix-like command shell implemented in C. The project demons
 ## Repository layout
 
 - `src/` — all C source files and headers (the shell implementation)
-- `CMakeLists.txt` — optional CMake build configuration
 
 Key files in `src/`:
 
@@ -24,16 +23,7 @@ Key files in `src/`:
 
 ## Build
 
-Preferred: CMake (if available on your system)
-
-```bash
-mkdir -p build
-cmake -S . -B build
-cmake --build build
-./build/shell
-```
-
-Fallback: compile with `cc`/`gcc` directly
+Preffered: compile with `cc`/`gcc` directly
 
 ```bash
 cc -D_POSIX_C_SOURCE=200809L -std=c23 src/*.c -o shell_c
