@@ -230,7 +230,7 @@ bool runExternal(char *cmdline)
       }
     }
 
-    // Handle attached filename forms: ">file", "1>file", ">>file", "1>>file", "2>>file"
+    // Handle attached filename forms: >file, 1>file, >>file, 1>>file, 2>>file
     if (a[0] == '>' && a[1] == '>' && a[2] != '\0')
     {
       redirectFd = 1;
@@ -302,10 +302,12 @@ bool runExternal(char *cmdline)
   }
 
   pid_t pid = fork();
+  // data type for process identifiers 
+  // typically a signed integer, allows it to hold a unqiue no. ID which is assigned by the OS
 
   if (pid == 0)
   {
-    // Handle the Redirection if detected
+    // handle the Redirection if detected
     if (outputFile != NULL)
     {
       // redirection logic (redir.c)
@@ -338,7 +340,6 @@ bool runExternal(char *cmdline)
   }
   else
   {
-    // --- PARENT PROCESS ---
     int status;
     waitpid(pid, &status, 0);
   }
